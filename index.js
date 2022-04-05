@@ -1,7 +1,8 @@
-
-
 const puppeteer = require('puppeteer');
-const userAgent = require('user-agents');
+const UserAgent = require('user-agents');
+
+const userAgent = new UserAgent();
+console.log(userAgent.toString());
 // test-------
 (async () => {
     try {
