@@ -1,19 +1,18 @@
 
 
 const puppeteer = require('puppeteer');
+const userAgent = require('user-agents');
 // test-------
 (async () => {
     try {
         // set some options (set headless to false so we can see 
         // this automated browsing experience)
-        let launchOptions = { headless: false, args: ['--start-maximized'] };
 
         const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
         const page = await browser.newPage();
 
         // set viewport and user agent (just in case for nice viewing)
-        await page.setViewport({width: 1366, height: 768});
-        await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.83 Safari/537.36');
+        await page.setUserAgent(userAgent.toString());
 
         // go to the target web
         await page.goto('https://steamdb.info/instantsearch/?query=pubg');
