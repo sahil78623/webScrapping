@@ -1,19 +1,23 @@
 const puppeteer = require('puppeteer');
 const UserAgent = require('user-agents');
+// const fakeUa = require('fake-useragent');
+// console.log(fakeUa(), '---fake ui');
+
+const randomUseragent = require('random-useragent');
+console.log(randomUseragent.getRandom());
 
 const userAgent = new UserAgent();
-console.log(userAgent.toString());
-// test-------
-(async () => {
-    try {
-        // set some options (set headless to false so we can see 
-        // this automated browsing experience)
+
+const express = require('express')
+const app = express()
+
+app.post('/getSearchResults', async function (req, res) {
+  try {
 
         const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
         const page = await browser.newPage();
 
-        // set viewport and user agent (just in case for nice viewing)
-        await page.setUserAgent(userAgent.toString());
+        await page.setUserAgent(randomUseragent.getRandom());
 
         // go to the target web
         await page.goto('https://steamdb.info/instantsearch/?query=pubg');
@@ -21,21 +25,15 @@ console.log(userAgent.toString());
         // wait for element defined by XPath appear in page
    
         await page.waitForXPath("(//a[@class='app s-hit-list'])");
-        // await page.waitForXPath("(//div[@class='sc-94726ce4-1 iNShGo'])//h1");
 
-        // evaluate XPath expression of the target selector (it return array of ElementHandle)
         let hitname = await page.$x("(//a[@class='app s-hit-list'])");
-        // await page.waitForXPath("(//div[@class='app s-hit-list'])");
 
         // prepare to get the textContent of the selector above (use page.evaluate)
         let firstRowdata = await page.evaluate(el => el.textContent, hitname[0]);
         
         const hrefs = await Promise.all((await page.$x('//a[@class="app s-hit-list"]')).map(async item => await (await item.getProperty('href')).jsonValue()));
-        // let hitreleaseData = await page.evaluate(el => el.textContent, hitrelease[0]);
 
         firstRowdata = firstRowdata.trim().split(" ");
-        // console.log('first row', firstRowdata);
-        // console.log("href = ",  hrefs[0])
 
         let gameName = ""
         let gameDetails = []
@@ -66,17 +64,11 @@ console.log(userAgent.toString());
 
         let productDetailsURL = hrefs[0]
         await page.goto(productDetailsURL);
-
-        // await page.waitForXPath("(//table[@class='table table-bordered table-hover table-responsive-flex'])//tbody");
-
-        // let productDetailsData = await page.$x("(//table[@class='table table-bordered table-hover table-responsive-flex'])//tbody");
-
-        // console.log("productDetailsData = ",  productDetailsData)
-        // close the browser
         await browser.close();
-    }
-    catch(error) {
-        console.log(error, "---error")
-    }
-    
-})();
+        return res.send('Hello World')
+  } catch (error) {
+      return res.send("catch block")
+  }
+})
+
+app.listen(3000)
